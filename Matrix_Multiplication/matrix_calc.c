@@ -10,9 +10,9 @@
 #define RAND_UPPER_BOUND 20 /*high end for random numbers*/
 
 /*function declarations*/
-// void FillMatrix(int row, int col, int (*mat)[row][col]);
+void FillMatrix(int row, int col, int (*mat)[col]);
 int RowXCol(int *row, int *col, int size);
-void PrintMatrix(int row, int col, int (*mat)[row][col]); 
+void PrintMatrix(int row, int col, int (*mat)[col]); 
 
 /*main function*/
 int main(){
@@ -34,50 +34,35 @@ int main(){
     int final_mat[mat1_rows][mat2_col];
 
     /*possibility to make this threaded*/
-    // FillMatrix(&mat1, mat1_rows, mat1_col);
+    FillMatrix(mat1_rows, mat1_col, mat1);
+    FillMatrix(mat2_rows, mat2_col, mat2);
     
-    srand(time(NULL));
-    int i;
-    int j;
-    for(i = 0; i < mat1_rows; i++){
-        for(j = 0; j < mat1_col; j++){
-            mat1[i][j] = (rand() % RAND_UPPER_BOUND);
-            fprintf(stdout, "%d\n", mat1[i][j]);
-        }
-    }
-
-    for(i = 0; i < mat2_rows; i++){
-        for(j = 0; j < mat2_col; j++){
-            mat2[i][j] = (rand() % RAND_UPPER_BOUND);
-        }
-    }
-    // FillMatrix(&mat2, mat2_rows, mat2_col);
-
-    PrintMatrix(mat1_rows, mat1_col, &mat1);
-    PrintMatrix(mat2_rows, mat2_col, &mat2);
+    PrintMatrix(mat1_rows, mat1_col, mat1);
+    PrintMatrix(mat2_rows, mat2_col, mat2);
 }
 
 /*fills matrix with randomly generated numbers*/
 /*? solidfy understanding of int **mat */
-// void FillMatrix(int row, int col, int (*mat)[row][col]){ /*Something learned: passing 2d arrays take **m */
-//     time_t t;
-//     srand((unsigned) time(&t));
-//     int i = 0;
-//     int j = 0;
-//     for(i < row; i++;){
-//         for(j < col; j++;){
-//             mat[i][j] = (rand() % RAND_UPPER_BOUND);
-//             fprintf(stdout, "%d, ", mat[i][j]);
-//         }
-//     }
-// }
-
-/*print matrix*/
-/*TODO: learn how to pass the 2d matrix by reference*/
-void PrintMatrix(int row, int col, int (*mat)[row][col]){
+void FillMatrix(int row, int col, int (*mat)[col]){ /*Something learned: passing 2d arrays take **m */
+    srand(time(NULL));
     int i;
     int j;
     for(i = 0; i < row; i++){
+        for(j = 0; j < col; j++){
+            mat[i][j] = (rand() % RAND_UPPER_BOUND);
+            fprintf(stdout, "%d, ", mat[i][j]);
+        }
+    }
+}
+
+/*print matrix*/
+/*TODO: learn how to pass the 2d matrix by reference*/
+void PrintMatrix(int row, int col, int (*mat)[col]){
+    printf("\nnew matrix\n");
+    int i;
+    int j;
+    for(i = 0; i < row; i++){
+        printf("row: \n");
         for(j = 0; j < col; j++){
             printf("%d, ", mat[i][j]);
         }
