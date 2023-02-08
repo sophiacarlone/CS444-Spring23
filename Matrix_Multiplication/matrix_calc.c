@@ -9,15 +9,19 @@
 /*Constants go here*/
 #define RAND_UPPER_BOUND 20 /*high end for random numbers*/
 
+/*Global Variables*/
+int mat1_rows, mat1_col, mat2_rows, mat2_col; //I try not to make global variables, but this was easier
+//TODO: use these variables to advantage
+
 /*function declarations*/
 void FillMatrix(int row, int col, int (*mat)[col]);
 int RowXCol(int *row, int *col, int size);
 void PrintMatrix(int row, int col, int (*mat)[col]); 
+int *IsolateColumn(int (*matrix)[mat2_col], int n);
+void RowXMatrix(int *row, int *(mat)[mat2_col], int *result);
 
 /*main function*/
 int main(){
-    int mat1_rows, mat1_col, mat2_rows, mat2_col;
-
     // intake the matrix parameters from stdin
     fprintf(stdout, "please input the number of rows and columns for each matrix. Ex: r1 c1 r2 c2\n");
     scanf("%d %d %d %d", &mat1_rows, &mat1_col, &mat2_rows, &mat2_col);
@@ -32,25 +36,35 @@ int main(){
     int mat1[mat1_rows][mat1_col]; 
     int mat2[mat2_rows][mat2_col];
     int final_mat[mat1_rows][mat2_col];
+    int result[mat1_col][mat2_rows];
+ //   int temp_col[mat2_rows]; /*see if you can avoid this later (IDEA: make the RowXCol return an array)*/
 
     /*possibility to make this threaded*/
+    srand(time(0));
     FillMatrix(mat1_rows, mat1_col, mat1);
     FillMatrix(mat2_rows, mat2_col, mat2);
     
     PrintMatrix(mat1_rows, mat1_col, mat1);
     PrintMatrix(mat2_rows, mat2_col, mat2);
+
+    /*matrix multiplication*/
+    int i, j;
+    for(i = 0; i < mat1_rows; i++){
+        RowXMatrix(mat1[i], mat2, result[0]); //Continue here
+    }   
+
+    PrintMatrix(mat1_col, mat2_rows, result);
 }
 
 /*fills matrix with randomly generated numbers*/
 /*? solidfy understanding of int **mat */
 void FillMatrix(int row, int col, int (*mat)[col]){ /*Something learned: passing 2d arrays take **m */
-    srand(time(NULL));
     int i;
     int j;
     for(i = 0; i < row; i++){
         for(j = 0; j < col; j++){
             mat[i][j] = (rand() % RAND_UPPER_BOUND);
-            fprintf(stdout, "%d, ", mat[i][j]);
+            // fprintf(stdout, "%d, ", mat[i][j]);
         }
     }
 }
@@ -70,12 +84,35 @@ void PrintMatrix(int row, int col, int (*mat)[col]){
     }
 }
 
-/*multiples a row (based on thread id) to another matrix
-returns sum*/
+/*Used to isolate a column from a matrix*/
+int *IsolateColumn(int (*matrix)[mat2_col], int n){
+    int i;
+    int *result = malloc(mat2_rows);
+    for(i = 0; i < mat2_rows; i++){
+        result[i] = matrix[i][n];
+    }
+    int j;
+    for(j = 0; j < mat2_rows; j++) printf("\n%d, ", result[j]);
+    return result;
+}
+
+/*multiples a row to column. Returns sum*/
 int RowXCol(int *row, int *col, int size){
     int i;
     int sum = 0; /*can later add in fold (if you want to practice that)*/
     for(int i = 0; i < size; i++)
         sum += row[i] * col[i];
     return sum;
+}
+
+void RowXMatrix(int *row, int *(mat)[mat2_col], int *result){
+    int i, j;
+
+    for(i = 0; i < mat1_col; i++){
+        result[i] = 0;
+        for(j = 0; j < mat2_rows; j++)
+            result[i] += row[i] * mat[j][i];
+    }
+
+    //TODO: change all the mat2col to something more understandable
 }
