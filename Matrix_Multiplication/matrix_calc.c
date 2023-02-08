@@ -11,6 +11,7 @@
 
 /*Global Variables*/
 int mat1_rows, mat1_col, mat2_rows, mat2_col; //I try not to make global variables, but this was easier
+
 //TODO: use these variables to advantage
 
 /*function declarations*/
@@ -36,7 +37,7 @@ int main(){
     int mat1[mat1_rows][mat1_col]; 
     int mat2[mat2_rows][mat2_col];
     int final_mat[mat1_rows][mat2_col];
-    int result[mat1_col][mat2_rows];
+
  //   int temp_col[mat2_rows]; /*see if you can avoid this later (IDEA: make the RowXCol return an array)*/
 
     /*possibility to make this threaded*/
@@ -49,11 +50,11 @@ int main(){
 
     /*matrix multiplication*/
     int i, j;
-    for(i = 0; i < mat1_rows; i++){
-        RowXMatrix(mat1[i], mat2, result[0]); //Continue here
-    }   
+    // for(i = 0; i < mat1_rows; i++){
+        // RowXMatrix(mat1[i], mat2, result[0]); //Continue here
+    // }   
 
-    PrintMatrix(mat1_col, mat2_rows, result);
+    PrintMatrix(mat1_col, mat2_rows, final_mat);
 }
 
 /*fills matrix with randomly generated numbers*/
