@@ -16,10 +16,11 @@ int mat1_rows, mat1_col, mat2_rows, mat2_col; //I try not to make global variabl
 
 /*function declarations*/
 void FillMatrix(int row, int col, int (*mat)[col]);
-int RowXCol(int *row, int *col, int size);
+// int RowXCol(int *row, int *col, int size);
 void PrintMatrix(int row, int col, int (*mat)[col]); 
-int *IsolateColumn(int (*matrix)[mat2_col], int n);
-void RowXMatrix(int *row, int *(mat)[mat2_col], int *result);
+// int *IsolateColumn(int (*matrix)[mat2_col], int n);
+void RowXMatrix(int *row, int (*mat)[mat2_col], int *result);
+void Initialize2Zero(int (*mat)[mat2_col]);
 
 /*main function*/
 int main(){
@@ -38,6 +39,9 @@ int main(){
     int mat2[mat2_rows][mat2_col];
     int final_mat[mat1_rows][mat2_col];
 
+    Initialize2Zero(final_mat);
+    PrintMatrix(mat1_rows, mat2_col, final_mat);
+
  //   int temp_col[mat2_rows]; /*see if you can avoid this later (IDEA: make the RowXCol return an array)*/
 
     /*possibility to make this threaded*/
@@ -50,11 +54,14 @@ int main(){
 
     /*matrix multiplication*/
     int i, j;
-    // for(i = 0; i < mat1_rows; i++){
-        // RowXMatrix(mat1[i], mat2, result[0]); //Continue here
-    // }   
+    for(i = 0; i < mat1_rows; i++){
+        RowXMatrix(mat1[i], mat2, final_mat[i]); //Continue here
+        for(j = 0; j < mat1_col; j++){
+            printf("%d\n", final_mat[i][j]);
+        }
+    }   
 
-    PrintMatrix(mat1_col, mat2_rows, final_mat);
+    PrintMatrix(mat1_rows, mat2_col, final_mat);
 }
 
 /*fills matrix with randomly generated numbers*/
@@ -85,6 +92,30 @@ void PrintMatrix(int row, int col, int (*mat)[col]){
     }
 }
 
+void RowXMatrix(int *row, int (*mat)[mat2_col], int *result){
+    int i, j;
+    printf("\nShould start at 0 \n");
+    for(i = 0; i < mat1_col; i++){
+        for(j = 0; j < mat2_rows; j++){
+                printf("%d ", result[i]);
+                result[i] += row[i] * mat[j][i];
+        }
+        printf("\n");
+    }
+//        RowXMatrix(mat1[i], mat2, final_mat[i]); //Continue here
+    //TODO: change all the mat2col to something more understandable
+}
+
+void Initialize2Zero(int (*mat)[mat2_col]){
+    int i, j;
+    for(i = 0; i < mat1_rows; i++){
+        for(j = 0; j < mat2_col; j++)
+            mat[i][j] = 0;
+    }
+}
+
+/*Unused Functions*/
+
 /*Used to isolate a column from a matrix*/
 int *IsolateColumn(int (*matrix)[mat2_col], int n){
     int i;
@@ -101,19 +132,7 @@ int *IsolateColumn(int (*matrix)[mat2_col], int n){
 int RowXCol(int *row, int *col, int size){
     int i;
     int sum = 0; /*can later add in fold (if you want to practice that)*/
-    for(int i = 0; i < size; i++)
+    for(i = 0; i < size; i++)
         sum += row[i] * col[i];
     return sum;
-}
-
-void RowXMatrix(int *row, int *(mat)[mat2_col], int *result){
-    int i, j;
-
-    for(i = 0; i < mat1_col; i++){
-        result[i] = 0;
-        for(j = 0; j < mat2_rows; j++)
-            result[i] += row[i] * mat[j][i];
-    }
-
-    //TODO: change all the mat2col to something more understandable
 }
