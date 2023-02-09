@@ -66,6 +66,7 @@ int main(){
 
 /*fills matrix with randomly generated numbers*/
 /*? solidfy understanding of int **mat */
+// int RowXCol(int *row, int *col, int size);
 void FillMatrix(int row, int col, int (*mat)[col]){ /*Something learned: passing 2d arrays take **m */
     int i;
     int j;
