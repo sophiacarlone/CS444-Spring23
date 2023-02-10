@@ -12,6 +12,8 @@
 /*Global Variables*/
 int mat1_rows, mat1_col, mat2_rows, mat2_col;
 
+//may need to create a struct here
+
 void FillMatrix(int row, int col, int (*mat)[col]);
 void PrintMatrix(int row, int col, int (*mat)[col]); 
 void Initialize2Zero(int (*mat)[mat2_col]);
@@ -32,6 +34,9 @@ int main(){
     int mat2[mat2_rows][mat2_col];
     int final_matrix[mat1_rows][mat2_col];
 
+    pthread_t threads[mat1_rows]; //thread array
+    int status; //checks for thread status
+
     srand(time(0));
     FillMatrix(mat1_rows, mat1_col, mat1);
     FillMatrix(mat2_rows, mat2_col, mat2);
@@ -39,24 +44,31 @@ int main(){
 
     PrintMatrix(mat1_rows, mat1_col, mat1);
     PrintMatrix(mat2_rows, mat2_col, mat2);
-    PrintMatrix(mat1_rows, mat2_col, final_matrix);
 
     int i;
-    for(i = 0; i < mat1_col; i++)
-        RowXMatrix(mat1[i], mat2, final_matrix, i);
-    // RowXMatrix(mat1[0], mat2, final_matrix);
+    // for(i = 0; i < mat1_col; i++)
+    //     RowXMatrix(mat1[i], mat2, final_matrix, i);
+    
+    //pthread_create here
+    for(i = 0; i < mat1_rows; i++){
+        status = pthread_create(&threads[i], NULL, RowXMatrix, (void *)i);
+        if(status)exit(1); //checking all threads are fine
+    }
 
+    //pthread_join here to wait for all to complete
+    for (int i = 0; i < mat1_rows; i++)
+        pthread_join(threads[i], NULL); 
+    
     PrintMatrix(mat1_rows, mat2_col, final_matrix);
 }
 
-/*Randomly fill Matrix*/
+/*Fill Matrix with random numbers*/
 void FillMatrix(int row, int col, int (*mat)[col]){ /*Something learned: passing 2d arrays take **m */
     int i;
     int j;
     for(i = 0; i < row; i++){
         for(j = 0; j < col; j++){
             mat[i][j] = (rand() % RAND_UPPER_BOUND);
-            // fprintf(stdout, "%d, ", mat[i][j]);
         }
     }
 }
@@ -85,9 +97,13 @@ void Initialize2Zero(int (*mat)[mat2_col]){
 }
 
 void RowXMatrix(int *row, int (*mat)[mat2_col], int (*result)[mat2_col], int row_ID){
-    int j, k;
-    for(j = 0; j < mat2_col; j++){
-        for(k = 0; k < mat1_col; k++)
-            result[row_ID][j] += row[k] * mat[k][j];
+
+}
+
+int RowXColumn(int *row, int *col){
+    int i, sum;
+    for(i = 0; i < mat1_col; i++){
+        sum += row[i] * col[i];
     }
+    return sum;
 }

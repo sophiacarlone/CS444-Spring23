@@ -19,7 +19,7 @@ void FillMatrix(int row, int col, int (*mat)[col]);
 // int RowXCol(int *row, int *col, int size);
 void PrintMatrix(int row, int col, int (*mat)[col]); 
 // int *IsolateColumn(int (*matrix)[mat2_col], int n);
-void RowXMatrix(int *row, int (*mat)[mat2_col], int *result);
+void RowXMatrix(int *row, int (*mat)[mat2_col], int (*result)[mat2_col], int row_ID);
 void Initialize2Zero(int (*mat)[mat2_col]);
 
 /*main function*/
@@ -55,7 +55,7 @@ int main(){
     /*matrix multiplication*/
     int i, j;
     for(i = 0; i < mat1_rows; i++){
-        RowXMatrix(mat1[i], mat2, final_mat[i]); //Continue here
+        // RowXMatrix(mat1[i], mat2, final_mat[i]); //Continue here
         for(j = 0; j < mat1_col; j++){
             printf("%d\n", final_mat[i][j]);
         }
@@ -93,18 +93,12 @@ void PrintMatrix(int row, int col, int (*mat)[col]){
     }
 }
 
-void RowXMatrix(int *row, int (*mat)[mat2_col], int *result){
-    int i, j;
-    printf("\nShould start at 0 \n");
-    for(i = 0; i < mat1_col; i++){
-        for(j = 0; j < mat2_rows; j++){
-                printf("%d ", result[i]);
-                result[i] += row[i] * mat[j][i];
-        }
-        printf("\n");
+void RowXMatrix(int *row, int (*mat)[mat2_col], int (*result)[mat2_col], int row_ID){
+    int j, k;
+    for(j = 0; j < mat2_col; j++){
+        for(k = 0; k < mat1_col; k++)
+            result[row_ID][j] += row[k] * mat[k][j];
     }
-//        RowXMatrix(mat1[i], mat2, final_mat[i]); //Continue here
-    //TODO: change all the mat2col to something more understandable
 }
 
 void Initialize2Zero(int (*mat)[mat2_col]){
