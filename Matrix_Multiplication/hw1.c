@@ -17,6 +17,7 @@ typedef struct thread_info
 {
     int *row;
     int *mat2;
+    int *resulting_row;
 } thread_info;
 
 /*functions*/
@@ -62,12 +63,18 @@ int main(){
     /*place matrix 2 into a 1d array for ease*/
     int mat2_emulated[mat2_rows*mat2_col];
     int k = 0;
-    for(int i = 0; i < mat2_rows; i++){
-        for(int j = 0; j < mat2_col; j++){
-            mat2_emulated[k] = mat2[i][j];
+    for(int i = 0; i < mat2_col; i++){
+        for(int j = 0; j < mat2_rows; j++){
+            mat2_emulated[k] = mat2[j][i];
             k++;
         }
     }
+
+    printf("mat2 emulated: ");
+    for(int i = 0; i < mat2_rows*mat2_col; i++)
+        printf("%d ", mat2_emulated[i]);
+ 
+    printf("\n");
 
     thread_info thread_data[mat1_rows];
 
@@ -75,19 +82,15 @@ int main(){
     for(int i = 0; i < mat1_rows; i++){
         thread_data[i].row = mat1[i];
         thread_data[i].mat2 = mat2_emulated;
+        thread_data[i].resulting_row = final_matrix[i];
         status = pthread_create(&threads[i], NULL, Thread_Helper, (void *)&thread_data[i]);
         if(status)exit(1);
     }
 
+    /*join together*/
     int returns[mat1_rows];
-    //pthread_join here to wait for all to complete
-    // printf("\n testing the final matrix: ");
-    for (int i = 0; i < mat1_rows; i++){
-        pthread_join(threads[i], final_matrix[i]);
-        // printf("%d ", returns[i]);
-        // for(int j = 0; j < mat2_col; j++)
-        //     printf("%d ", final_matrix[i][j]);
-    } 
+    for (int i = 0; i < mat1_rows; i++)
+        pthread_join(threads[i], NULL);
     
     PrintMatrix(mat1_rows, mat2_col, final_matrix);
 }
@@ -127,35 +130,30 @@ void Initialize2Zero(int (*mat)[mat2_col]){
 }
 
 void *Thread_Helper(void *args){
-    int p[mat2_col];
     int placement;
     int col[mat2_rows];
 
     thread_info *data = (thread_info *)args;
 
     for(int i = 0; i < mat2_col; i++){
-        placement = i * mat2_col;
+        placement = i * mat2_rows;
         for(int j = 0; j < mat2_rows; j++){
             col[j] = data->mat2[j+placement];
         }
 
-        // p[i] = RowXColumn(data->row, col);
         for(int k = 0; k < mat1_col; k++){
-            p[i] += data->row[k] * col[k];
+            data->resulting_row[i] += data->row[k] * col[k];
             printf("looking at %d * %d\n", data->row[k], col[k]);
-            printf("%d \n", p[i]);
+            printf("%d \n", data->resulting_row[i]);
         }
         printf("\n");
     }
 
     printf("this row of the final result: ");
     for(int g = 0; g < mat2_col; g++)
-        printf("%d ", p[g]);
+        printf("%d ", data->resulting_row[g]);
 
     printf("\n");
-
-
-    pthread_exit(*p);
 }
 
 /*row * column computation*/
