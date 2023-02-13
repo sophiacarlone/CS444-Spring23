@@ -79,12 +79,14 @@ int main(){
         if(status)exit(1);
     }
 
+    int returns[mat1_rows];
     //pthread_join here to wait for all to complete
-    printf("\n testing the final matrix: ");
+    // printf("\n testing the final matrix: ");
     for (int i = 0; i < mat1_rows; i++){
         pthread_join(threads[i], final_matrix[i]);
-        for(int j = 0; j < mat2_col; j++)
-            printf("%d ", final_matrix[i][j]);
+        // printf("%d ", returns[i]);
+        // for(int j = 0; j < mat2_col; j++)
+        //     printf("%d ", final_matrix[i][j]);
     } 
     
     PrintMatrix(mat1_rows, mat2_col, final_matrix);
