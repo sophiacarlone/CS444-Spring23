@@ -1,4 +1,11 @@
-/*take 3*/
+// Operating Systems - CS444/544
+// Spring 2023
+// Sophia Carlone
+// Matrix Multiplication with Multithreading
+// Using pthreads, matrix multiplication in which the size of the initial 
+// matrixes are determined by user input and then filled with random number is parallelized
+// 2/12/2023
+// YouTube Code Review & Demo link
 
 /*All needed libraries*/
 #include <stdio.h>
@@ -13,11 +20,10 @@
 int mat1_rows, mat1_col, mat2_rows, mat2_col;
 
 //Created types
-typedef struct thread_info
-{
-    int *row;
-    int *mat2;
-    int *resulting_row;
+typedef struct thread_info{
+    int *row; //row to multiply
+    int *mat2; //entire matrix emulated in a 1d array
+    int *resulting_row; //row in final matrix the thread is figuring out
 } thread_info;
 
 /*functions*/
@@ -25,10 +31,8 @@ void FillMatrix(int row, int col, int (*mat)[col]);
 void PrintMatrix(int row, int col, int (*mat)[col]); 
 void Initialize2Zero(int (*mat)[mat2_col]);
 void *Thread_Helper(void *args);
-int RowXColumn(int *row, int *col);
 
 int main(){
-//TODO: comments
 //TODO: Malloc
 //TODO: Assert
 
@@ -70,19 +74,14 @@ int main(){
         }
     }
 
-    printf("mat2 emulated: ");
-    for(int i = 0; i < mat2_rows*mat2_col; i++)
-        printf("%d ", mat2_emulated[i]);
- 
-    printf("\n");
-
+    /*created the structures for the thread info to be passed*/
     thread_info thread_data[mat1_rows];
 
     /*create threads*/
     for(int i = 0; i < mat1_rows; i++){
-        thread_data[i].row = mat1[i];
-        thread_data[i].mat2 = mat2_emulated;
-        thread_data[i].resulting_row = final_matrix[i];
+        thread_data[i].row = mat1[i]; /*row to be multiplied in the string*/
+        thread_data[i].mat2 = mat2_emulated; /*entire matrix used for computations*/
+        thread_data[i].resulting_row = final_matrix[i]; /*What row of the final matrix the thread is computing*/
         status = pthread_create(&threads[i], NULL, Thread_Helper, (void *)&thread_data[i]);
         if(status)exit(1);
     }
@@ -91,7 +90,8 @@ int main(){
     int returns[mat1_rows];
     for (int i = 0; i < mat1_rows; i++)
         pthread_join(threads[i], NULL);
-    
+
+    /*Print final result*/    
     PrintMatrix(mat1_rows, mat2_col, final_matrix);
 }
 
@@ -129,45 +129,23 @@ void Initialize2Zero(int (*mat)[mat2_col]){
     }
 }
 
+/*Thread function to find answers for respective result matrix row*/
 void *Thread_Helper(void *args){
-    int placement;
-    int col[mat2_rows];
+    int placement; /*for keeping track of which column being used*/
+    int col[mat2_rows]; /*array that holds column used at one time*/
 
-    thread_info *data = (thread_info *)args;
+    thread_info *data = (thread_info *)args; /*taking the data from the structure out of the argument*/
 
+    /*computations*/
     for(int i = 0; i < mat2_col; i++){
-        placement = i * mat2_rows;
+        /*for getting the correct column*/
+        placement = i * mat2_rows; /*which column are we on (start of the id array)*/
         for(int j = 0; j < mat2_rows; j++){
             col[j] = data->mat2[j+placement];
         }
-
+        /*the good stuff*/
         for(int k = 0; k < mat1_col; k++){
-            data->resulting_row[i] += data->row[k] * col[k];
-            printf("looking at %d * %d\n", data->row[k], col[k]);
-            printf("%d \n", data->resulting_row[i]);
+            data->resulting_row[i] += data->row[k] * col[k]; /*cell * cell*/
         }
-        printf("\n");
     }
-
-    printf("this row of the final result: ");
-    for(int g = 0; g < mat2_col; g++)
-        printf("%d ", data->resulting_row[g]);
-
-    printf("\n");
-}
-
-/*row * column computation*/
-int RowXColumn(int *row, int *col){
-
-    printf("\n");
-    int i, sum;
-    for(i = 0; i < mat1_col; i++){
-        sum += row[i] * col[i];
-        printf("looking at %d * %d\n", row[i], col[i]);
-    printf("%d \n", sum);
-
-    }
-    printf("%d ", sum);
-
-    return sum;
 }
