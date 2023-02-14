@@ -4,8 +4,8 @@
 // Matrix Multiplication with Multithreading
 // Using pthreads, matrix multiplication in which the size of the initial 
 // matrixes are determined by user input and then filled with random number is parallelized
-// 2/12/2023
-// YouTube Code Review & Demo link
+// 2/14/2023
+// https://youtu.be/PYfOkKIpCN8
 
 /*All needed libraries*/
 #include <stdio.h>
@@ -87,7 +87,6 @@ int main(){
     }
 
     /*join together*/
-    int returns[mat1_rows];
     for (int i = 0; i < mat1_rows; i++)
         pthread_join(threads[i], NULL);
 
