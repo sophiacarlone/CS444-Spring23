@@ -1,10 +1,21 @@
+// Operating Systems - CS444
+// Spring 2023
+// Sophia Carlone
+// Producer-Consumer Problem
+// Solving the producer-consumer problem using pthreads and mutexes
+// 2/23/23
+// https://youtu.be/cZL_VWgDNX0
+
+
+/* includes */
 #include<stdio.h>
 #include<stdlib.h>
 #include<pthread.h>
 
-/* Global variables and Defines */
-#define MAX 50
+/* Defines */
+#define MAX 50 //number of items placed in the buffer to be consumed
 
+/* Global variables */
 int buffer = 0; //Critical Region
 pthread_mutex_t mutex; //mutex shared by all threads
 pthread_cond_t p_cond, c_cond; //making signals telling who can wake up 
@@ -13,6 +24,7 @@ pthread_cond_t p_cond, c_cond; //making signals telling who can wake up
 void *Producer(void *arg);
 void *Consumer(void *arg);
 
+/* Main */
 int main(){
 pthread_t producer, consumer; //create threads
 pthread_mutex_init(&mutex, 0); //initialize the mutex with default attribute
@@ -33,7 +45,7 @@ pthread_cond_destroy(&c_cond);
 pthread_mutex_destroy(&mutex);
 }
 
-//function for the producer to add to the buffer
+//function for the producer to add to the buffer when applicable 
 void *Producer(void *arg){
     for(int i = 1; i < MAX; i++){
         pthread_mutex_lock(&mutex); //get solo access to buffer
@@ -51,7 +63,7 @@ void *Producer(void *arg){
     pthread_exit(0);
 }
 
-//function for the consumer to consume the buffer
+//function for the consumer to consume from the buffer when applicable
 void *Consumer(void *arg){
     for(int i = 1; i < MAX; i++){
         pthread_mutex_lock(&mutex); //get solo access to buffer
@@ -68,3 +80,5 @@ void *Consumer(void *arg){
     }
     pthread_exit(0);
 }
+
+//end program
