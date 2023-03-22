@@ -1,2 +1,3 @@
 # CS444-Spring23
-Clarkson Univeristy Class on Operating Systems
+Clarkson University class on Operating Systems
+Taught by Prof. Ronny Bull
