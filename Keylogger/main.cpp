@@ -7,7 +7,7 @@ This program records the keys the user presses and places them in a file.
 The keys are taken from an event file
 */
 // April 2nd, 2023
-// Video link
+// https://www.youtube.com/watch?v=fffFTqj47zE
 
 #include <iostream>
 #include <fstream>
