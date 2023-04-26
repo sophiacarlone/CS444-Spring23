@@ -72,7 +72,11 @@ void *PhilosopherActions(void *args){
 
     // print_info(data->id, data->state);
 
+    fprintf(stderr, "hit1\n");
+
     while(1){
+    fprintf(stderr, "hit2\n");
+
         switch (data->state){
         case FULL:
             pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
@@ -103,6 +107,7 @@ void *PhilosopherActions(void *args){
             fprintf(stderr, "fell to default");
             break;
         }
+        sleep(10);
     }
 }
 
