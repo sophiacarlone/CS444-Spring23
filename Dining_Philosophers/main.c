@@ -53,7 +53,7 @@ int main(){
             fprintf(stderr, "issue with thread\n");
             exit(1); //checking all threads are fine
         }
-        // sleep(2); //used to avoid conflict when using fprintf()
+        sleep(2); //used to avoid conflict when using fprintf()
     }
 
     //return 0;
@@ -79,16 +79,24 @@ void *PhilosopherActions(void *args){
 
         switch (data->state){
         case FULL:
+            fprintf(stderr, "hit3\n");
             pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
             pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the buffer
             sleep(10);
             break;
         
+        //TODO: what if the chopsticks have already been taken?
+
         case HUNGRY:
-            if(info[left_partner].state == STARVING)
+            fprintf(stderr, "hit4\n");
+            if( (info[left_partner].state == STARVING) )
                 pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
+            else
+                pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
             if(info[right_partner].state == STARVING)
                 pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the buffer
+            else
+                pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
             sleep(10);
             break;
 
