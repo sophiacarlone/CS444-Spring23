@@ -22,7 +22,6 @@
 typedef struct philosopher_info
 {
     int state;
-    // int num_of_chopsticks;
     int id;
 } philosopher_info;
 
@@ -33,6 +32,7 @@ philosopher_info info[PHILOSOPHERS]; //information for each philosopher
 //functions
 void *PhilosopherActions(void *args);
 void print_info(int id, int state);
+
 
 int main(){
     int status; // pthread creation check variable
@@ -46,7 +46,6 @@ int main(){
 
     for(int i = 0; i < PHILOSOPHERS; i++){
         info[i].state = HUNGRY + (rand() % (FULL+1-HUNGRY)); //random state between hungry and full
-        // info[i].num_of_chopsticks = 0;
         info[i].id = i; 
         status = pthread_create(&philosophers[i], NULL, PhilosopherActions, (void *)&info[i]);
         if(status){
@@ -55,9 +54,12 @@ int main(){
         }
         sleep(2); //used to avoid conflict when using fprintf()
     }
-
-    //return 0;
 }
+
+//TODO: pthread conditions
+//TODO: Cycle
+//QUESTION: why is it not running forever?
+
 
 //thread function that works to symbolize all states and actions of the philosophers
 void *PhilosopherActions(void *args){
@@ -67,10 +69,13 @@ void *PhilosopherActions(void *args){
     int left_chopstick = data->id;
     int right_chopstick = (data->id + 1) % CHOPSTICKS;
 
+    //representing philosophers to either side
     int left_partner = (data->id - 1) % PHILOSOPHERS;
     int right_partner = (data->id + 1) % PHILOSOPHERS;  
 
-    // print_info(data->id, data->state);
+    //how many chopsticks owned (used for HUNGRY case)
+    int owns_left_chopsticks = 0;
+    int owns_right_chopsticks = 0;
 
     fprintf(stderr, "hit1\n");
 
@@ -80,29 +85,48 @@ void *PhilosopherActions(void *args){
         switch (data->state){
         case FULL:
             fprintf(stderr, "hit3\n");
-            pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
-            pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the buffer
-            sleep(10);
+            pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
+            pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
+            data->state -= 1; //will be getting hungry
+            print_info(data->id, FULL);
+            sleep(10); //wait for cycle to be over
             break;
         
-        //TODO: what if the chopsticks have already been taken?
-
         case HUNGRY:
             fprintf(stderr, "hit4\n");
-            if( (info[left_partner].state == STARVING) )
-                pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
+            //check left
+            if( (info[left_partner].state == STARVING) ){
+                pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
+                owns_left_chopsticks = 0;
+            }
+            else{
+                pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //picking up chopstick
+                owns_left_chopsticks = 1;
+            }
+            //check right
+            if(info[right_partner].state == STARVING){
+                pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
+                owns_right_chopsticks = 0;
+            }
+            else{
+                pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //picking up chopstick
+                owns_right_chopsticks = 1;
+            }
+
+            if(owns_left_chopsticks && owns_right_chopsticks) //conditions to eat
+                data->state += 1; //can eat
             else
-                pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
-            if(info[right_partner].state == STARVING)
-                pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the buffer
-            else
-                pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
+                data->state -= 1;
+
+            print_info(data->id, HUNGRY);
+
             sleep(10);
             break;
 
         case STARVING:
-            pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //letting go of the buffer
-            pthread_mutex_lock(&chopsticks_in_use[right_chopstick]); //letting go of the buffer
+            pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //get chopstick
+            pthread_mutex_lock(&chopsticks_in_use[right_chopstick]); //get chopstick
+            data->state += 1;
             sleep(10);
             break;
 
@@ -117,6 +141,7 @@ void *PhilosopherActions(void *args){
         }
         sleep(10);
     }
+    fprintf(stderr, "outside the while loop");
 }
 
 //print the random states
