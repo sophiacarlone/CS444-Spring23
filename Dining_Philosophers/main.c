@@ -16,7 +16,7 @@
 #define STARVING 2  //state when the philosopher needs to eat
 #define DEAD 1      //game over
 
-#define CYCLE 10    //amount of time in each cycle
+#define CYCLE 3    //amount of time in each cycle
 
 //Created types
 typedef struct philosopher_info
@@ -29,17 +29,21 @@ typedef struct philosopher_info
 pthread_mutex_t chopsticks_in_use[CHOPSTICKS]; //array to symbolize which and how many forks are in use
 philosopher_info info[PHILOSOPHERS]; //information for each philosopher
 pthread_cond_t chopstick_cond[CHOPSTICKS];
-// time_t alarm;
+struct tm *start_time;
+
 
 //functions
 void *PhilosopherActions(void *args);
-void print_info(int id, int state);
+void print_info(int id, int state, int cycle);
 
 
 int main(){
     int status; // pthread creation check variable
     srand(time(0)); //Seed for random status fill
-    // time(alarm);
+    time_t rawtime;
+ 
+    time(&rawtime);
+    start_time = gmtime(&rawtime ); /* Get GMT time */
 
     pthread_t philosophers[PHILOSOPHERS]; //each philosopher has its own thread
 
@@ -57,15 +61,12 @@ int main(){
             exit(1); //checking all threads are fine
         }
     }
+
     for (int i = 0; i < PHILOSOPHERS; i++){
         pthread_join( philosophers[i], NULL);
     }
     
 }
-
-//TODO: pthread conditions
-//TODO: Cycle
-//QUESTION: why is it not running forever?
 
 
 //thread function that works to symbolize all states and actions of the philosophers
@@ -84,7 +85,15 @@ void *PhilosopherActions(void *args){
     int owns_left_chopsticks = 0;
     int owns_right_chopsticks = 0;
 
+    int cycle_count = 0;
+
     while(1){
+        // while(){
+
+        // }
+        // pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
+        // pthread_mutex_lock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
+
         switch (data->state){
         case FULL:
             pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
@@ -92,35 +101,26 @@ void *PhilosopherActions(void *args){
             // pthread_cond_signal(&chopstick_cond[left_chopstick]);
             // pthread_cond_signal(&chopstick_cond[right_chopstick]);
             data->state -= 1; //will be getting hungry
-            print_info(data->id, FULL);
+            print_info(data->id, data->state, cycle_count);
 
-            // fprintf(stderr, "hit3\n"); //confirmed good
-            sleep(10); //wait for cycle to be over
-            // break;
+            break;
         
         case HUNGRY:
             //check left
-            // fprintf(stderr, "hit4\n");
-
             if( (info[left_partner].state == STARVING) ){
                 pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
                 // pthread_cond_signal(&chopstick_cond[left_chopstick]);
                 owns_left_chopsticks = 0;
             }
             else{
-                // fprintf(stderr, "hit5\n");
-
                 pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //picking up chopstick
-                // fprintf(stderr, "hit6\n");
 
                 // pthread_cond_wait(&chopstick_cond[left_chopstick], &chopsticks_in_use[left_chopstick]); 
-                // fprintf(stderr, "hit7\n");
 
                 owns_left_chopsticks = 1;
 
             }
             //check right
-
             if(info[right_partner].state == STARVING){
                 pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
                 // pthread_cond_signal(&chopstick_cond[right_chopstick]);
@@ -136,37 +136,36 @@ void *PhilosopherActions(void *args){
                 data->state += 1; //can eat
             else
                 data->state -= 1;
+            print_info(data->id, data->state, cycle_count);
 
-            print_info(data->id, HUNGRY);
-
-            sleep(10);
-            // break;
+            break;
 
         case STARVING:
-            fprintf(stderr, "starving\n");
             pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //get chopstick
             pthread_mutex_lock(&chopsticks_in_use[right_chopstick]); //get chopstick
             // pthread_cond_wait(&chopstick_cond[left_chopstick], &chopsticks_in_use[left_chopstick]); 
             // pthread_cond_wait(&chopstick_cond[right_chopstick], &chopsticks_in_use[right_chopstick]); 
             data->state += 1;
-            sleep(10);
-            // break;
+            print_info(data->id, data->state, cycle_count);
+            break;
 
         case DEAD:
+            print_info(data->id, data->state, cycle_count);
             fprintf(stderr, "GAME OVER");
             exit(1);
-            // break;
+            break;
 
         default:
             fprintf(stderr, "fell to default");
             break;
         }
-        sleep(10);
+        cycle_count += 1; //done with cycle
+        sleep(CYCLE); //waiting for everyone
     }
     fprintf(stderr, "outside the while loop");
 }
 
-//print the random states
-void print_info(int id, int state){
-    fprintf(stderr, "Philosopher %d is in state %d\n", id, state);
+//print the philosophers information
+void print_info(int id, int state, int cycle){
+    fprintf(stderr, "Philosopher %d is in state %d on cycle %d\n", id, state, cycle);
 }
