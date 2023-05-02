@@ -62,6 +62,7 @@ int main(){
         }
     }
 
+    //You need this for threads to run forever apparently
     for (int i = 0; i < PHILOSOPHERS; i++){
         pthread_join( philosophers[i], NULL);
     }
@@ -95,11 +96,10 @@ void *PhilosopherActions(void *args){
             pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
             data->state -= 1; //will be getting hungry
             print_info(data->id, data->state, cycle_count);
-
             break;
         
         case EATING:
-            //check left
+            //check to the left
             if( (info[left_partner].state == HUNGRY) ){
                 pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
                 pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
@@ -119,7 +119,7 @@ void *PhilosopherActions(void *args){
                 owns_right_chopsticks = 0;
             }
             else{
-                pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //picking up chopstick
+                pthread_mutex_lock(&chopsticks_in_use[right_chopstick]); //picking up chopstick
                 owns_right_chopsticks = 1;
             }
 
