@@ -104,16 +104,18 @@ void *PhilosopherActions(void *args){
                 pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
                 pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
                 owns_left_chopsticks = 0;
+                owns_right_chopsticks = 0;
             }
             else{
                 pthread_mutex_lock(&chopsticks_in_use[left_chopstick]); //picking up chopstick
                 owns_left_chopsticks = 1;
-
             }
+
             //check right
             if(info[right_partner].state == HUNGRY){
                 pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
                 pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
+                owns_left_chopsticks = 0;
                 owns_right_chopsticks = 0;
             }
             else{
@@ -121,12 +123,12 @@ void *PhilosopherActions(void *args){
                 owns_right_chopsticks = 1;
             }
 
+            //Owns all the chopsticks to eat?
             if(owns_left_chopsticks && owns_right_chopsticks) //conditions to eat
                 data->state += 1; //can eat
             else
                 data->state -= 1;
             print_info(data->id, data->state, cycle_count);
-
             break;
 
         case HUNGRY:
@@ -140,7 +142,6 @@ void *PhilosopherActions(void *args){
                 data->state -=1;
                 break;
             }
-            pthread_mutex_trylock(&chopsticks_in_use[right_chopstick]); //get chopstick
             data->state += 1;
             print_info(data->id, data->state, cycle_count);
             break;
