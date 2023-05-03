@@ -41,16 +41,11 @@ int main(){
     int status; // pthread creation check variable
     int count; //count cycle
     srand(time(0)); //Seed for random status fill
-    time_t rawtime;
- 
-    time(&rawtime);
-    start_time = gmtime(&rawtime ); /* Get GMT time */
 
     pthread_t philosophers[PHILOSOPHERS]; //each philosopher has its own thread
 
     for(int i = 0; i < CHOPSTICKS; i++){
         pthread_mutex_init(&chopsticks_in_use[i], 0); //initialize the mutex with default attribute
-        pthread_cond_init(&chopstick_cond[i], 0);
     }
 
     for(int i = 0; i < PHILOSOPHERS; i++){
@@ -76,6 +71,11 @@ int main(){
     for (int i = 0; i < PHILOSOPHERS; i++){
         pthread_join( philosophers[i], NULL);
     }
+
+    for(int i = 0; i < CHOPSTICKS; i++){
+        fprintf(stderr, "destroying the mutexes\n");
+        pthread_mutex_destroy(&chopsticks_in_use[i]); //destroy the mutexes (but it shouldnt get to here)
+    }    
     
 }
 
@@ -175,5 +175,21 @@ void *PhilosopherActions(void *args){
 
 //print the philosophers information
 void print_info(int id, int state, int cycle){
-    fprintf(stderr, "Philosopher %d is in state %d on cycle %d\n", id, state, cycle);
+    switch (state){
+    case THINKING:
+        fprintf(stderr, "Philosopher %d is THINKING on cycle %d\n", id, cycle);
+        break;
+    case EATING:
+        fprintf(stderr, "Philosopher %d is EATING on cycle %d\n", id, cycle);
+        break;
+    case HUNGRY:
+        fprintf(stderr, "Philosopher %d is HUNGRY on cycle %d\n", id, cycle);
+        break;
+    case DEAD:
+        fprintf(stderr, "Philosopher %d is DEAD on cycle %d\n", id, cycle);
+        break;
+    
+    default:
+        break;
+    }
 }
