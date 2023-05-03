@@ -39,6 +39,7 @@ void print_info(int id, int state, int cycle);
 
 int main(){
     int status; // pthread creation check variable
+    int count; //count cycle
     srand(time(0)); //Seed for random status fill
     time_t rawtime;
  
@@ -62,6 +63,15 @@ int main(){
         }
     }
 
+    while (1){
+        fprintf(stderr, "______________________________________\n");
+        for(int i = 0; i < PHILOSOPHERS; i++){
+            print_info(i, info[i].state, count);
+        }
+        count += 1;
+        sleep(CYCLE);
+    }
+    
     //You need this for threads to run forever apparently
     for (int i = 0; i < PHILOSOPHERS; i++){
         pthread_join( philosophers[i], NULL);
@@ -95,7 +105,7 @@ void *PhilosopherActions(void *args){
             pthread_mutex_unlock(&chopsticks_in_use[left_chopstick]); //letting go of the chopstick
             pthread_mutex_unlock(&chopsticks_in_use[right_chopstick]); //letting go of the chopstick
             data->state -= 1; //will be getting hungry
-            print_info(data->id, data->state, cycle_count);
+            // print_info(data->id, data->state, cycle_count);
             break;
         
         case EATING:
@@ -128,7 +138,7 @@ void *PhilosopherActions(void *args){
                 data->state += 1; //can eat
             else
                 data->state -= 1;
-            print_info(data->id, data->state, cycle_count);
+            // print_info(data->id, data->state, cycle_count);
             break;
 
         case HUNGRY:
@@ -143,11 +153,11 @@ void *PhilosopherActions(void *args){
                 break;
             }
             data->state += 1;
-            print_info(data->id, data->state, cycle_count);
+            // print_info(data->id, data->state, cycle_count);
             break;
 
         case DEAD:
-            print_info(data->id, data->state, cycle_count);
+            // print_info(data->id, data->state, cycle_count);
             fprintf(stderr, "GAME OVER");
             exit(1);
             break;
