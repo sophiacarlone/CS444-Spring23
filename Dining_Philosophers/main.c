@@ -5,6 +5,7 @@
 // With the states of THINKING, EATING, HUNGRY, and DEAD 
 // make sure that all Philosophers are able shared the forks so that no one dies
 // 5/4/23
+//https://www.youtube.com/watch?v=9lGSdiZ-lVI
 
 //includes
 #include <stdio.h>
