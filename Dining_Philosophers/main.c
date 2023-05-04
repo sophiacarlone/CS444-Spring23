@@ -1,4 +1,10 @@
-//Sophia Carlone
+// Operating Systems - CS444
+// Spring 2023
+// Sophia Carlone
+// This Dining Philosophers Problem
+// With the states of THINKING, EATING, HUNGRY, and DEAD 
+// make sure that all Philosophers are able shared the forks so that no one dies
+// 5/4/23
 
 //includes
 #include <stdio.h>
@@ -31,8 +37,6 @@ typedef struct philosopher_info
 //global variables
 pthread_mutex_t chopsticks_in_use[CHOPSTICKS]; //array to symbolize which and how many forks are in use
 philosopher_info info[PHILOSOPHERS]; //information for each philosopher
-pthread_cond_t chopstick_cond[CHOPSTICKS];
-struct tm *start_time;
 
 
 //functions
@@ -44,10 +48,6 @@ int main(){
     int status; // pthread creation check variable
     int count = 0; //count cycle
     srand(time(0)); //Seed for random status fill
-    time_t rawtime;
- 
-    time(&rawtime);
-    start_time = gmtime(&rawtime ); /* Get GMT time */
 
     pthread_t philosophers[PHILOSOPHERS]; //each philosopher has its own thread
 
@@ -101,8 +101,6 @@ void *PhilosopherActions(void *args){
     //how many chopsticks owned (used for HUNGRY case)
     int owns_left_chopsticks = 0;
     int owns_right_chopsticks = 0;
-
-    int cycle_count = 0;
 
     while(1){
         owns_left_chopsticks = 0;
@@ -159,8 +157,6 @@ void *PhilosopherActions(void *args){
             fprintf(stderr, "fell to default");
             break;
         }
-
-        cycle_count += 1; //done with cycle
         sleep(CYCLE); //waiting for everyone
     }
     fprintf(stderr, "outside the while loop");
